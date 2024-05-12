@@ -1,5 +1,6 @@
 import boto3
 import json
+from botocore.exceptions import ClientError
 
 region = "us-west-2"
 session = boto3.Session(region_name=region)
@@ -8,19 +9,26 @@ client = session.client('bedrock-runtime')
 
 def streaming(b):
     prompt = createPrompt(b)
-    response = client.invoke_model_with_response_stream(
+    try:
+        response = client.invoke_model_with_response_stream(
         body= prompt,
         modelId="anthropic.claude-3-haiku-20240307-v1:0",
         trace='ENABLED')
+    except ClientError as e:
+        yield json.dumps({"error": e})
+        return
+
+    res = ""
     for i in response["body"]:
         q = json.loads(i["chunk"]["bytes"].decode("utf-8"))
-        print(q)
         if q["type"] == "content_block_delta":
+            res += q["delta"]["text"]
             yield q["delta"]["text"]
         if q["type"] == "content_block_stop":
             yield "\n"
         if q["type"] == "message_stop":
-            print(response)
+            # save response
+            print(res)
 
 def createPrompt(b):
     messages = []
@@ -38,3 +46,14 @@ def createPrompt(b):
     "temperature": 1,
     "top_k": 10,
 })
+
+def getChatHistory():
+    pass
+    #todo
+
+def saveChatHistory():
+    pass
+    ##todo
+
+def retrieveDocs():
+    pass 
