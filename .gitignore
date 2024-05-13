@@ -1,2 +1,3 @@
 adams
-__pycache__
+__*
+.venv
