@@ -37,8 +37,9 @@ def fake_video_streamer():
 
 
 @app.get("/test")
-def main():
-    return StreamingResponse(fake_video_streamer())
+def main() -> StreamingResponse:
+    headers = {"X-Content-Type-Options": "nosniff"}
+    return StreamingResponse(fake_video_streamer(), headers=headers)
 
 
 if __name__ == "__main__":
