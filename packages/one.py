@@ -2,17 +2,18 @@ import boto3
 import json
 from botocore.exceptions import ClientError
 
-region = "us-west-2"
-session = boto3.Session(region_name=region)
+region = "us-east-1"
+session = boto3.Session(region_name=region, profile_name="one")
 client = session.client('bedrock-runtime')
 
-
+#"anthropic.claude-3-sonnet-20240229-v1:0"
+#"anthropic.claude-3-haiku-20240307-v1:0"
 def streaming(b):
     prompt = createPrompt(b)
     try:
         response = client.invoke_model_with_response_stream(
         body= prompt,
-        modelId="anthropic.claude-3-haiku-20240307-v1:0",
+        modelId="anthropic.claude-3-sonnet-20240229-v1:0",
         trace='ENABLED')
     except ClientError as e:
         yield json.dumps({"error": e})
@@ -35,13 +36,13 @@ def createPrompt(b):
     messages.append({
             "role": "user",
             "content": [
-                { "type": "text", "text": f"Tell me a joke about {b} please" }
+                { "type": "text", "text": f"Write a poem about {b} please" }
       ]
         })
     return json.dumps({
     "anthropic_version": "bedrock-2023-05-31",    
-    "max_tokens": 100,
-    "system": "You are a pirate",    
+    "max_tokens": 200,
+    "system": "You are a pirate and you need to talk like one",    
     "messages": messages,
     "temperature": 1,
     "top_k": 10,

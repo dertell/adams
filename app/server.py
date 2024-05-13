@@ -9,11 +9,6 @@ class Request(BaseModel):
     student: str
     topic: str
 
-class Response(BaseModel):
-    answer: str
-    messageID: int
-
-
 app = FastAPI()
 
 @app.get("/")
@@ -25,9 +20,14 @@ async def redirect_root_to_docs():
 def stream(question: Request):
     return StreamingResponse(streaming(question.query))
 
+@app.get("/getstream")
+def stream(question: str):
+    headers = {"X-Content-Type-Options": "nosniff"}
+    return StreamingResponse(streaming(question), headers=headers)
+
 
 @app.post("/quiz")
-def quiz(topic: Request) -> Response:
+def quiz(topic: Request):
     return
 
 def fake_video_streamer():
